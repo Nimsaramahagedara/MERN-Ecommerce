@@ -1,0 +1,3 @@
+/*CREATE A .env file and copy paste the Content below there*/
+
+PORT = 5000;
