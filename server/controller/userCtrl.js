@@ -94,6 +94,7 @@ export const updateUser = asyncHandler(async(req,res) =>{
     }
 });
 
+//Block User
 export const blockUser = asyncHandler( async(req, res) => {
     const {id} = req.params;
     try{
@@ -114,6 +115,7 @@ export const blockUser = asyncHandler( async(req, res) => {
     }
 });
 
+//Unblock User
 export const unblockUser = asyncHandler( async(req, res) => {
     const {id} = req.params;
     try{
