@@ -59,5 +59,40 @@ export const getUser = asyncHandler(async(req,res) =>{
     } catch (error) {
         throw new Error(error);
     }
-})
+});
+//DELETE USER
+export const deleteUser = asyncHandler(async(req,res) =>{
+    try {
+        const {id} = req.params;
+        console.log("delete id : " + id);
+        const user =await User.findByIdAndDelete(id);
+        res.json(user);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+//UPDATE USER
+export const updateUser = asyncHandler(async(req,res) =>{
+    try {
+        const {id} = req.params;
+        console.log("update id : " + id);
+        const user =await User.findByIdAndUpdate(
+            id,
+            {
+                firstname: req.body.firstname,
+                lastname : req.body.lastname,
+                mobile : req.body.mobile,
+                email:req.body.email
+            },
+            {
+                new:true
+            }
+        );
+        res.json(user);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+
 export default createUser;
