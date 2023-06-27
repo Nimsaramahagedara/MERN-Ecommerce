@@ -1,10 +1,10 @@
-import User from '../models/userModel.js';
+import User from "../models/userModel.js";
 import asyncHandler from 'express-async-handler';
 import bcrypt from "bcrypt";
 import { genToken } from '../config/jwtToken.js';
-import { all } from 'axios';
 
-const createUser = asyncHandler(async (req,res)=>{
+
+export const createUser = asyncHandler(async (req,res)=>{
     const email = req.body.email;
     const mobile = req.body.mobile;
     const findbyEmail = await User.find({email : email})
@@ -94,5 +94,4 @@ export const updateUser = asyncHandler(async(req,res) =>{
     }
 });
 
-
-export default createUser;
+export default  { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser };

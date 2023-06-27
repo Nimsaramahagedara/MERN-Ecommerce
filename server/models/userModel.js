@@ -4,13 +4,11 @@ import bcrypt from "bcrypt";
 var userSchema = new mongoose.Schema({
     firstname:{
         type:String,
-        required:true,
-        index:true,
+        required:true
     },
     lastname:{
         type:String,
-        required:true,
-        index:true,
+        required:true
     },
     email:{
         type:String,
@@ -29,7 +27,15 @@ var userSchema = new mongoose.Schema({
     role:{
         type: String,
         default: "user"
-    }
+    },
+    cart:{
+        type: Array,
+        default: []
+    },
+    address:[{type: mongoose.Schema.Types.ObjectId, ref: "Address"}],
+    wishlist:[{type: mongoose.Schema.Types.ObjectId, ref: "Product"}],
+}, {
+    timestamps: true
 });
 
 userSchema.pre("save", async function (next){
@@ -41,4 +47,5 @@ userSchema.methods.isPasswordMatched = async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password);
 }
 //Export the model
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;
