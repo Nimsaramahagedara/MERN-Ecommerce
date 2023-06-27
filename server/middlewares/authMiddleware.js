@@ -5,7 +5,7 @@ import express  from "express";
 import dotenv from 'dotenv';
 dotenv.config();
 
-const authMiddleware = asyncHandler(async (req, res, next) => {
+export const authMiddleware = asyncHandler(async (req, res, next) => {
     let token;
     if(req?.headers?.authorization?.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1];
@@ -26,8 +26,15 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
     }
 });
 
-const isAdmin = asyncHandler(async (req, res, next) => {
-    //IS ADMIN S
+export const isAdmin = asyncHandler(async (req, res, next) => {
+    const {email} = req.user;
+    const adminUser = await User.findOne({email: email});
+
+    if(adminUser.role !== "admin"){
+        throw new Error("You are not an admin");
+    }else{
+        next();
+    }
 })
 
-export  { authMiddleware };
+export default  { authMiddleware, isAdmin };
