@@ -2,6 +2,8 @@ import User from "../models/userModel.js";
 import asyncHandler from 'express-async-handler';
 import bcrypt from "bcrypt";
 import { genToken } from '../config/jwtToken.js';
+import validateMongoDbId from "../utils/validateMongodbId.js";
+import { generateRefreshToken } from "../config/refreshToken.js";
 
 
 export const createUser = asyncHandler(async (req,res)=>{
@@ -24,6 +26,15 @@ export const loginUser = asyncHandler(async(req,res)=>{
     const {email,password} = req.body;
     const findbyEmail = await User.findOne({email : email});
     if(findbyEmail !== "" && await findbyEmail.isPasswordMatched(password) == true){
+        const  refreshToken = await generateRefreshToken(findbyEmail?._id);
+        const updateUser = await User.findByIdAndUpdate(findbyEmail._id, {
+            refreshToken : refreshToken
+        }, {new : true});
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 72*60*60*1000,
+        })
         res.status(200);
         res.json({
             _id : findbyEmail._id,
@@ -37,7 +48,11 @@ export const loginUser = asyncHandler(async(req,res)=>{
     }else{
         throw new Error('Invalid Credential!');
     }
-})
+});
+
+//Handle Refresh Token
+//TODO
+
 //GET ALL USERS
 export const getAllUsers = asyncHandler (async(req,res) =>{
     try {
@@ -53,6 +68,7 @@ export const getAllUsers = asyncHandler (async(req,res) =>{
 export const getUser = asyncHandler(async(req,res) =>{
     try {
         const {id} = req.params;
+        validateMongoDbId(id);
         console.log("Email : " + id);
         const user =await User.findById(id);
         res.json(user);
@@ -64,6 +80,7 @@ export const getUser = asyncHandler(async(req,res) =>{
 export const deleteUser = asyncHandler(async(req,res) =>{
     try {
         const {id} = req.params;
+        validateMongoDbId(id);
         console.log("delete id : " + id);
         const user =await User.findByIdAndDelete(id);
         res.json(user);
@@ -73,8 +90,11 @@ export const deleteUser = asyncHandler(async(req,res) =>{
 });
 //UPDATE USER
 export const updateUser = asyncHandler(async(req,res) =>{
+
+    const {_id} = req.user;
+    validateMongoDbId(_id);
     try {
-        const {_id} = req.user;
+       
         console.log("update id : " + _id);
         const user =await User.findByIdAndUpdate(
             _id,
@@ -97,6 +117,7 @@ export const updateUser = asyncHandler(async(req,res) =>{
 //Block User
 export const blockUser = asyncHandler( async(req, res) => {
     const {id} = req.params;
+    validateMongoDbId(id);
     try{
        const block = await User.findByIdAndUpdate(
         id,
@@ -118,6 +139,7 @@ export const blockUser = asyncHandler( async(req, res) => {
 //Unblock User
 export const unblockUser = asyncHandler( async(req, res) => {
     const {id} = req.params;
+    validateMongoDbId(id);
     try{
        const unblock = await User.findByIdAndUpdate(
         id,
