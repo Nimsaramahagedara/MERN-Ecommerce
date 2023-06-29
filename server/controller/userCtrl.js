@@ -6,7 +6,7 @@ import validateMongoDbId from "../utils/validateMongodbId.js";
 import { generateRefreshToken } from "../config/refreshToken.js";
 import jwt from 'jsonwebtoken';
 
-
+//Create User
 export const createUser = asyncHandler(async (req,res)=>{
     const email = req.body.email;
     const mobile = req.body.mobile;
