@@ -4,8 +4,9 @@ import bcrypt from "bcrypt";
 import { genToken } from '../config/jwtToken.js';
 import validateMongoDbId from "../utils/validateMongodbId.js";
 import { generateRefreshToken } from "../config/refreshToken.js";
+import jwt from 'jsonwebtoken';
 
-
+//Create User
 export const createUser = asyncHandler(async (req,res)=>{
     const email = req.body.email;
     const mobile = req.body.mobile;
@@ -49,9 +50,45 @@ export const loginUser = asyncHandler(async(req,res)=>{
         throw new Error('Invalid Credential!');
     }
 });
+//LOG OUT
 
+export const logout = asyncHandler(async(req,res)=>{
+    console.log("LOGOUT FUNCTION");
+    const cookie = req.cookies;
+    if(!cookie?.refreshToken) throw new Error('No refresh token in cookies');
+    const refreshToken = cookie.refreshToken;
+    const user = await User.findOne({refreshToken});
+    if(!user){
+        res.clearCookie('refreshToken',{
+            httpOnly: true,
+            secure: true
+        });
+        return res.sendStatus(204); //forbidden
+    }
+    await User.findOneAndUpdate({refreshToken},{
+        refreshToken : ""
+    })
+    res.clearCookie('refreshToken',{
+        httpOnly: true,
+        secure: true
+    });
+    res.sendStatus(204); 
+})
 //Handle Refresh Token
-//TODO
+export const handleRefreshToken = asyncHandler(async(req,res)=>{
+    const cookie = req.cookies;
+    if(!cookie?.refreshToken) throw new Error('No refresh token in cookies');
+    const refreshToken = cookie.refreshToken;
+    const user = await User.findOne({refreshToken});
+    if(!user) throw new Error('No refresh token in DB please log in again');
+    jwt.verify(refreshToken, process.env.SECRET_KEY,(err,decoded)=>{
+        if(err || user.id !== decoded.id){
+            throw new Error('There is something wrong with refreshToken');
+        }
+        const accessToken = genToken(user.id);
+        res.json({accessToken});
+    });
+})
 
 //GET ALL USERS
 export const getAllUsers = asyncHandler (async(req,res) =>{
