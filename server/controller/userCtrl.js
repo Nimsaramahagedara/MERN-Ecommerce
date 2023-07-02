@@ -195,4 +195,33 @@ export const unblockUser = asyncHandler( async(req, res) => {
     }
 });
 
-export default  { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser };
+export const updatePassword = asyncHandler(async (req, res) => {
+    const { _id} = req.user;
+    const { password } = req.body;
+    validateMongoDbId(_id);
+    const user = await User.findById(_id);
+    if(password){
+        user.password = password;
+        const updatedPassword = await user.save();
+        res.json(updatedPassword);
+    }else{
+        res.json(user);
+    }
+});
+
+export const forgotPasswordToken = asyncHandler(async(req, res) => {
+     const { email } = req.body;
+     const user = await User.findOne({email});
+     if(!user) throw new Error("User not found with this email");
+
+     try{
+        const token = await user.createPasswordResetToken();
+        await user.save();
+        const resetURL = `Hi, Please follow this link to reset Your password. This link is valid till 10mins from now. <a http="http://localhost:5000/api/user/reset-password/${token}">Click Here</>`;
+        //TOdo
+     }catch(err){
+        throw new Error(err);
+     }
+})
+
+export default  { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, updatePassword, forgotPasswordToken };
