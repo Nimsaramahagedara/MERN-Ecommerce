@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { genToken } from '../config/jwtToken.js';
 import validateMongoDbId from "../utils/validateMongodbId.js";
 import { generateRefreshToken } from "../config/refreshToken.js";
+import crypto  from "crypto";
 import jwt from 'jsonwebtoken';
 
 //Create User
@@ -218,10 +219,46 @@ export const forgotPasswordToken = asyncHandler(async(req, res) => {
         const token = await user.createPasswordResetToken();
         await user.save();
         const resetURL = `Hi, Please follow this link to reset Your password. This link is valid till 10mins from now. <a http="http://localhost:5000/api/user/reset-password/${token}">Click Here</>`;
-        //TOdo
+        const data = {
+            to: email,
+            text:"Hey User",
+            subject: "Forgot Password Link",
+            htm: resetURL,
+        };
+        sendRmail(data);
+        res.jason(token);
      }catch(err){
         throw new Error(err);
      }
-})
+});
+//reset password
+export const resetPassword = asyncHandler(async (req,res) => {
+    const {password} =req.body;
+    const {token}= req.params;
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User. findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {$gt:Date.now()},
 
-export default  { createUser, loginUser, getAllUsers, getUser, deleteUser, updateUser, blockUser, unblockUser, updatePassword, forgotPasswordToken };
+    });
+if (!user) throw new err("Token Expired, Please try again later");
+user.password = password;
+user.passwordResetToken = undefined;
+user.passwordResetExpires = undefined;
+await user.save();
+res.jason(user);
+});
+
+export default  {
+    createUser, 
+    loginUser, 
+    getAllUsers, 
+    getUser, 
+    deleteUser,
+    updateUser,
+    blockUser, 
+    unblockUser,
+    updatePassword,
+    forgotPasswordToken,
+    resetPassword,
+     };
