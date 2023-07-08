@@ -20,6 +20,7 @@ app.use(cookieParser());
 
 app.use("/api/user",authRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/blog", blogRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
