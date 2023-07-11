@@ -58,4 +58,4 @@ author:{
 );
 
 //Export the model
-module.exports = mongoose.model('Blog', blogSchemaSchema);
+export default mongoose.model('Blog', blogSchema);

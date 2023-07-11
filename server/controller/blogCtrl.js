@@ -157,4 +157,3 @@ if (isDisLiked){
     res.json(blog);
 }
 });
-module.exports ={createBlog,updateBlog, getBlog,getAllBlogs,deleteBlog,likeBlog,dislikeBlog};

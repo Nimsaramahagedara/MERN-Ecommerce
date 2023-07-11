@@ -1,6 +1,7 @@
 import  express from "express";
-import authMiddleware from "../middlewares/authMiddleware";
-import { createBlog, deleteBlog, getAllBlogs, updateBlog,getAllBlogs,deleteBlog, likeBlog, dislikeBlog } from "../controller/blogCtrl";
+import  {isAdmin}  from "../middlewares/authMiddleware.js";
+import {authMiddleware} from "../middlewares/authMiddleware.js";
+import { createBlog, getAllBlogs, updateBlog,deleteBlog, likeBlog, dislikeBlog, getBlog } from "../controller/blogCtrl.js";
 const router = express.Router();
 
 router.post ("/", authMiddleware,isAdmin,createBlog);
@@ -10,4 +11,5 @@ router.get ("/", getAllBlogs);
 router.delete ("/", authMiddleware, isAdmin,deleteBlog);
 router.put ("/likes", authMiddleware, likeBlog);
 router.put ("/dislikes", authMiddleware, dislikeBlog);
-module.exports = router;
+
+export default router;
